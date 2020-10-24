@@ -1,0 +1,143 @@
+<html>
+    <head>
+        <style>
+            h1,nav{
+                background-color:darkgrey;
+                text-align: center;
+                height: 75px;
+                width: 100%;
+                vertical-align: middle;
+            }
+        </style>
+        <script src="./lib/jquery.js"></script>
+        <script>
+            const url= "http://localhost:1234/Candidate"
+            function saveChanges() {
+                let obj= {}
+                obj.cddId= $("#sId").text()
+                obj.cddName = $("#cddName").val();
+                obj.cddAddress = $("#cddAddress").val();
+                obj.cddSalary = $("#cddSalary").val();
+                $.ajax({
+                    method: 'PUT',
+                    url: url,
+                    data:obj,
+                    success: (data)=>{
+                        alert(data)
+                    }
+                })
+            }
+            function findRecord() {
+                $("div").hide(2000)
+                $("div:eq(1)").show(2000)
+                const id= $(this).attr("eId")
+                let tcdd= url + "/"+ id
+                $.get(tcdd, (data)=>{
+                    let cdd=JSON.parse(data)
+                    $("#sId").text(cdd.cddId)
+                    $("#cddName").val(cdd.cddName)
+                    $("#cddAddress").val(cdd.cddAddress)
+                    $("#cddSalary").val(cdd.cddSalary)
+                })
+            }
+            function delRecord() {
+                const id= $(this).attr("dId")
+                let tcdd= url + "/del"
+                const obj={}
+                obj.cddId=id
+
+                $.ajax({
+                    method: 'DELETE',
+                    url: url,
+                    data:obj,
+                    success: (data)=>{
+                        alert(data)
+                    }
+                })
+            }
+            function showAddDiv() {
+
+                $("div").hide(2000)
+                $("div:last").show(2000)
+            }
+            function addChanges() {
+
+                let obj={}
+                obj.cddId=$("#newId").val()
+                obj.cddName=$("#newName").val()
+                obj.cddAddress=$("#newAddress").val()
+                obj.cddSalary=$("#newSalary").val()
+                $.post(url, obj, (data)=>{
+                    alert(data)
+                    $("input").val("")
+                    $("div").hide(2000)
+                })
+            }
+            function populateData() {
+
+                $("div:first").show(2000)
+                $("table").find("tr:gt(0)").remove();
+                $.get(url, (data)=>{
+                    let array = JSON.parse(data);
+                    for (const cdd of array) {
+
+                        const row = `<tr>
+                            <td>${cdd.cddId}</td>
+                            <td>${cdd.cddName}</td>
+                            <td>${cdd.cddAddress}</td>
+                            <td>${cdd.cddSalary}</td>
+                            <td><a href="#" class="edit" eId = ${cdd.cddId}>Edit</a><a href="#" class="delete" dId=${cdd.cddId}>Delete</a></td>
+                            </tr>`
+                        $("table").append(row);
+                    }
+                    $(".edit").click(findRecord);     
+                    $(".delete").click(delRecord);          
+                })
+
+            }        
+            function init(){
+                $("div").hide(2000);
+                $("a:first").click(populateData);
+                $("a:eq(1)").click(showAddDiv);
+                $("button:eq(0)").click(saveChanges);
+                $("button:eq(1)").click(addChanges);
+            }
+            $(document).ready(init);
+        </script>
+    </head>
+    <body>
+        <h1>NodeJS Appliation</h1>
+        <nav>
+            <a href="#">Show All</a>
+            <a href="#">Add New</a>
+            <a href="#">About Us</a>
+        </nav>
+        <div class="section">
+            <table border="1">
+                <tr>
+                    <th>Candidate ID</th>
+                    <th>Candidate Name</th>
+                    <th>Candidate Address</th>
+                    <th>Candidate Phone</th>
+                    <th>Options</th>
+                </tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Details of the Candidate</h2>
+            <p>Candidate ID: <span id="sId"></span></p>
+            <p>Candidate Name : <input id="cddName"/></p>
+            <p>Candidate Address : <input id="cddAddress"/></p>
+            <p>Candidate Salary : <input id="cddSalary"/></p>
+            <p><button>Save Changes</button></p>
+        </div>
+        <div class="section">
+            <h2>Register New Candidate</h2>
+            <p>Candidate ID: <input id="newId" /></p>
+            <p>Candidate Name : <input id="newName" /></p>
+            <p>Candidate Address : <input id="newAddress" /></p>
+            <p>Candidate Salary : <input id="newSalary" /></p>
+            <p><button>Add Candidate</button></p>
+        </div>
+    </body>
+</html>
